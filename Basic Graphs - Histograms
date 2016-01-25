@@ -1,0 +1,110 @@
+Basic Graphs- Histograms
+Anbarasan S
+December 17, 2015
+par(mfrow = c(2,2))
+data("mtcars")
+
+## Type 1: Simple Histogram
+hist(mtcars$mpg)
+
+## Type 2 : With Bins and colours specified
+## Breaks option controls the number of bins(Bins = Bars)
+hist(mtcars$mpg,
+     breaks =12,
+     col="red",
+     xlab = "Miles Per Gallon",
+     main = "Colored histogram with 12 bins")
+
+## Type 3 : freq = FALSE
+hist(mtcars$mpg,
+     freq = FALSE,
+     breaks = 12,
+     col = "red",
+     xlab = "Miles Per Gallon",
+     main = "Histogram, rug plot,density Curve")
+rug(jitter(mtcars$mpg))
+lines(density(mtcars$mpg), col = "blue", lwd =2)
+
+## Type 4: With Normal Curve
+
+x <- mtcars$mpg
+h <- hist(x,
+          breaks = 12,
+          col = "red",
+          xlab = "Miles Per Gallon",
+          main = "Histogram with normal curve  and box")
+
+xfit <- seq(min(x),max(x),length = 40)
+yfit <- dnorm(xfit, mean = mean(x), sd = sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="blue", lwd=2)
+box()
+
+1.2 Kernel density plots:
+•kernel density estimation is a nonparametric method for estimating the probability density function of a random variable
+•kernel density plots can be an effective way to view the distribution of a continuous variable. The format for a density plot (that’s not being superimposed on another graph) is * plot(density(x)) *
+•where x is a numeric vector. Because the plot() function begins a new graph, use the lines() function (listing 6.6) when superimposing a density curve on an existing graph.
+  d <- density(mtcars$mpg)
+  plot(d)
+
+  d <- density(mtcars$mpg)
+  plot(d, main="Kernel Density of Miles Per Gallon")
+  polygon(d, col="red", border="blue")
+  rug(mtcars$mpg, col="brown")
+
+•Kernel density plots can be used to compare groups. This is a highly underutilized approach, probably due to a general lack of easily accessible software. Fortunately, the sm package fills this gap nicely.
+•The sm.density.compare() function in the sm package allows you to superimpose the kernel density plots of two or more groups. The format is 
+◦sm.density.compare(x, factor) * where x is a numeric vector and factor is a grouping variable.
+  # Double width of plotted lines
+  library(sm) ## Warning: package 'sm' was built under R version 3.2.3## Package 'sm', version 2.2-5.4: type help(sm) for summary information  attach(mtcars)
+  
+  cyl.f <- factor(cyl, 
+                  levels= c(4,6,8),
+                  labels = c("4 cylinder", "6 cylinder", "8 cylinder")) # Create Grouping Factor
+  
+  sm.density.compare(mpg, cyl, xlab="Miles Per Gallon") # Plot Densities
+  title(main="MPG Distribution by Car Cylinders")
+
+  # colfill<-c(2:(1+length(levels(cyl.f))))         # Add Legend via Mouse Clicks
+  # legend(locator(1), levels(cyl.f), fill=colfill) 
+ 
+  detach(mtcars)1.3 Box plots
+•A “box-and-whiskers” plot describes the distribution of a continuous variable by plotting its five-number summary: the minimum, lower quartile (25th percentile), median(50th percentile), upper quartile (75th percentile), and maximum.
+•It can also display observations that may be outliers (values outside the range of ± 1.5*IQR, where IQR is the interquartile range defined as the upper quartile minus the lower quartile)
+•boxplot(mtcars$mpg, main=“Box plot”, ylab=“Miles per Gallon”) *
+•By default, each whisker extends to the most extreme data point, which is no more than the 1.5 times the interquartile range for the box. Values outside this range are depicted as dots
+Using parallel box plots to compare groups
+•Box plots can be created for individual variables or for variables by group. The format is
+•boxplot(formula, data=dataframe) *
+•An example of a formula is y ~ A, where a separate box plot for numeric variable y is generated for each value of categorical variable A. The formula y ~ A*B would produce a box plot of numeric variable y, for each combination of levels in categorical variables A and B.
+•Adding the option * varwidth=TRUE * will make the box plot widths proportional to the square root of their sample sizes. Add * horizontal=TRUE * to reverse the axis orientation
+      boxplot(mpg ~ cyl, 
+              data=mtcars,
+              main="Car Mileage Data",
+              xlab="Number of Cylinders",
+              ylab="Miles Per Gallon")  
+
+      boxplot( mpg ~ cyl, data=mtcars,
+               notch=TRUE,
+               varwidth=TRUE,
+               col="red",
+               main="Car Mileage Data",
+               xlab="Number of Cylinders",
+               ylab="Miles Per Gallon")## Warning in bxp(structure(list(stats = structure(c(21.4, 22.8, 26, 30.4, :
+## some notches went outside hinges ('box'): maybe set notch=FALSE
+
+     ## Box plots for two crossed factors
+      mtcars$cyl.f <- factor(mtcars$cyl,
+                            levels=c(4,6,8),
+                            labels=c("4","6","8"))
+
+      mtcars$am.f <- factor(mtcars$am,
+                            levels=c(0,1),
+                            labels=c("auto", "standard"))
+
+      boxplot(mpg ~ am.f *cyl.f,
+              data=mtcars,
+              varwidth=TRUE,
+              col=c("gold","darkgreen"),
+              main="MPG Distribution by Auto Type",
+              xlab="Auto Type")
